@@ -84,7 +84,7 @@ jobs:
           merge-multiple: true
 
       - name: Pack nuget package
-        run: dotnet pack LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release --no-build --output bin\Release --version=$Env:LHM_VER
+        run: dotnet pack LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release --no-build --output bin\Release -p:Version=$Env:LHM_VER
 
       - name: Publish nupkg
         uses: actions/upload-artifact@v4
