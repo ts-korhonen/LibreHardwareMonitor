@@ -29,13 +29,13 @@ jobs:
           } | Set-Content Directory.Build.props
 
       - name: Build x64 library
-        run: dotnet build LibreHardwareMonitorLib\ -c Release -p:Platform=x64
+        run: dotnet build LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release -p:Platform=x64
 
       - name: Build x86 library
-        run: dotnet build LibreHardwareMonitorLib\ -c Release -p:Platform=x86
+        run: dotnet build LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release -p:Platform=x86
 
       - name: Pack nuget package
-        run: dotnet pack LibreHardwareMonitor\LibreHardwareMonitor.csproj -c Release --no-build --output bin\Release
+        run: dotnet pack LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release --no-build --output bin\Release
 
       - name: Build application
         run: dotnet build LibreHardwareMonitor\LibreHardwareMonitor.csproj -c Release -p:Platform=x64
