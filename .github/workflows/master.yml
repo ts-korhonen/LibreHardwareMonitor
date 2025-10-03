@@ -30,11 +30,11 @@ jobs:
               else { $_ -replace $m.Value, ("<Version>{0}.{1}.{2}-pre${{ github.run_number }}</Version>" -f $m.Groups[1].Value,$m.Groups[2].Value,([convert]::ToInt32($m.Groups[3].Value)+1)); }
           } | Set-Content Directory.Build.props
 
-      - name: Build library
-        strategy:
-          matrix:
-            platform: [x64, x86]
-        run: dotnet build LibreHardwareMonitorLib\ -c Release -p:Platform=${{ matrix.platform }}
+      - name: Build x64 library
+        run: dotnet build LibreHardwareMonitorLib\ -c Release -p:Platform=x64
+
+      - name: Build x86 library
+        run: dotnet build LibreHardwareMonitorLib\ -c Release -p:Platform=x86
 
       - name: Pack nuget package
         run: dotnet pack LibreHardwareMonitor\LibreHardwareMonitor.csproj -c Release --no-build --output bin\Release
@@ -49,19 +49,61 @@ jobs:
           path: |
             bin/Release/net472
 
-      - name: Publish library artifacts
-        strategy:
-          matrix:
-            include:
-              - platform: x64
-                frameworks: [net472, netstandard20, net80, net90]
-              - platform: x86
-                frameworks: [net472, netstandard20, net80, net90]
+      - name: Publish net472 (x64)
         uses: actions/upload-artifact@v4
         with:
-          name: LibreHardwareMonitorLib-${{ matrix.framework }}-${{ matrix.platform }}
+          name: LibreHardwareMonitorLib-net472-x64
           path: |
-            bin/Release/${{ matrix.platform }}/${{ matrix.framework == 'netstandard20' && 'netstandard2.0' || matrix.framework }}
+            bin/Release/x64/net472
+
+      - name: Publish netstandard20 (x64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LibreHardwareMonitorLib-netstandard20-x64
+          path: |
+            bin/Release/x64/netstandard2.0
+
+      - name: Publish net80 (x64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LibreHardwareMonitorLib-net80-x64
+          path: |
+            bin/Release/x64/net8.0
+
+      - name: Publish net90 (x64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LibreHardwareMonitorLib-net90-x64
+          path: |
+            bin/Release/x64/net9.0
+
+      - name: Publish net472 (x86)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LibreHardwareMonitorLib-net472-x86
+          path: |
+            bin/Release/x86/net472
+
+      - name: Publish netstandard20 (x86)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LibreHardwareMonitorLib-netstandard20-x86
+          path: |
+            bin/Release/x86/netstandard2.0
+
+      - name: Publish net80 (x86)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LibreHardwareMonitorLib-net80-x86
+          path: |
+            bin/Release/x86/net8.0
+
+      - name: Publish net90 (x86)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LibreHardwareMonitorLib-net90-x86
+          path: |
+            bin/Release/x86/net9.0
 
       - name: Publish nupkg
         uses: actions/upload-artifact@v4
