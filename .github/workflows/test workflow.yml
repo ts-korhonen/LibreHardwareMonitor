@@ -78,6 +78,9 @@ jobs:
         with:
           msbuild-architecture: x64
 
+      - name: restore
+        run: dotnet restore LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj
+
       - uses: actions/download-artifact@v5
         with:
           path: bin/Release
