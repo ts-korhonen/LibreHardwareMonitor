@@ -86,6 +86,9 @@ jobs:
           path: bin/Release
           merge-multiple: true
 
+      - name: Build reference libraries
+        run: dotnet build LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release -p:Platform=AnyCPU -p:Version=$env:LHM_VER
+
       - name: Pack nuget package
         run: dotnet pack LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release --no-build --output bin\Release -p:Version=$Env:LHM_VER
 
