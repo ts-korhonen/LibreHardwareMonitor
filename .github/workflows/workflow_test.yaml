@@ -32,7 +32,6 @@ jobs:
     strategy:
       matrix:
         platform: [x64, x86]
-        framework: [net472, netstandard2.0, net8.0, net9.0]
     runs-on: windows-2022
     needs: set-version
     env:
@@ -44,25 +43,27 @@ jobs:
         with:
           msbuild-architecture: x64
 
-      - name: Build library ${{ matrix.framework }} ${{ matrix.platform }}
-        run: dotnet build LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release -p:Platform=${{ matrix.platform }} -f ${{ matrix.framework }} -p:Version=$env:LHM_VER
+      - name: Build ${{ matrix.platform }} libraries
+        run: dotnet build LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release -p:Platform=${{ matrix.platform }} -p:Version=$env:LHM_VER
 
-      - name: Publish library ${{ matrix.framework }} ${{ matrix.platform }}
+      - name: Publish ${{ matrix.platform }} libraries
         uses: actions/upload-artifact@v4
         with:
-          name: tmp-lib-${{ matrix.framework }}-${{ matrix.platform }}
-          path: bin/Release/
+          name: LibreHardwareMonitorLib (${{ matrix.platform }})
+          path: |
+            bin/Release/${{ matrix.platform }}
 
       - name: Build application
-        if: matrix.platform == 'x64' && matrix.framework == 'net472'
+        if: matrix.platform == 'x64'
         run: dotnet build LibreHardwareMonitor\LibreHardwareMonitor.csproj -c Release -p:Platform=${{ matrix.platform }} -p:Version=$Env:LHM_VER
 
       - name: Publish application
-        if: matrix.platform == 'x64' && matrix.framework == 'net472'
+        if: matrix.platform == 'x64'
         uses: actions/upload-artifact@v4
         with:
           name: LibreHardwareMonitor
-          path: bin/Release/net472
+          path: |
+            bin/Release/net472
 
   pack:
     runs-on: windows-2022
@@ -78,9 +79,13 @@ jobs:
 
       - uses: actions/download-artifact@v5
         with:
-          pattern: tmp-lib-*
-          path: bin/Release
-          merge-multiple: true
+          name: LibreHardwareMonitorLib (x64)
+          path: bin/Release/x64
+
+      - uses: actions/download-artifact@v5
+        with:
+          name: LibreHardwareMonitorLib (x86)
+          path: bin/Release/x86
 
       - name: Build reference libraries
         run: dotnet build LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj -c Release -p:BuildOnlyRefs=true -p:Version=$env:LHM_VER
@@ -92,33 +97,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: LibreHardwareMonitorLib-nupkg
-          path: bin/Release/LibreHardwareMonitorLib.*.nupkg
-
-  merge-libs:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/download-artifact@v5
-        with:
-          pattern: tmp-lib-*
-          path: bin/Release
-          merge-multiple: true
-      
-      - uses: actions/upload-artifact@v4
-        with:
-          name: LibreHardwareMonitorLib (x64)
-          path: bin/Release/x64
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: LibreHardwareMonitorLib (x86)
-          path: bin/Release/x86
-
-  clean-up:
-    runs-on: ubuntu-latest
-    needs: [pack, merge-libs]
-    steps:
-      - uses: geekyeggo/delete-artifact@v5
-        with:
-          name: tmp-lib-*
-
+          path: |
+            bin/Release/LibreHardwareMonitorLib.*.nupkg
